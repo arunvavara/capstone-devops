@@ -1,0 +1,9 @@
+# ============================================================
+# namespace.yml - Kubernetes Namespace
+# ============================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: capstone
+  labels:
+    app: capstone-project

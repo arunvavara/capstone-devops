@@ -1,0 +1,54 @@
+# ============================================================
+# buildspec.yml - AWS CodeBuild Configuration
+# Capstone Project DevOps Pipeline
+# ============================================================
+
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: "us-west-2"
+    IMAGE_TAG: "latest"
+  parameter-store:
+    KUBECONFIG_DATA: "/capstone/kubeconfig"
+
+phases:
+
+  pre_build:
+    commands:
+      - echo "=== Pre-Build Phase ==="
+      - echo "Logging into Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - ECR_REPO_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO_NAME
+      - echo "ECR Repository - $ECR_REPO_URI"
+      - echo "Image Tag - $IMAGE_TAG"
+
+  build:
+    commands:
+      - echo "=== Build Phase ==="
+      - echo "Building Docker image..."
+      - docker build -t $ECR_REPO_URI:latest .
+      - docker tag $ECR_REPO_URI:latest $ECR_REPO_URI:$IMAGE_TAG
+      - echo "Docker image built successfully!"
+
+  post_build:
+    commands:
+      - echo "=== Post-Build Phase ==="
+      - echo "Pushing Docker image to ECR..."
+      - docker push $ECR_REPO_URI:latest
+      - docker push $ECR_REPO_URI:$IMAGE_TAG
+      - echo "Image pushed successfully!"
+      - echo "Updating Kubernetes deployment..."
+      - echo $KUBECONFIG_DATA | base64 -d > /tmp/kubeconfig
+      - export KUBECONFIG=/tmp/kubeconfig
+      - kubectl set image deployment/flask-app flask-app=$ECR_REPO_URI:$IMAGE_TAG -n capstone
+      - kubectl rollout status deployment/flask-app -n capstone
+      - echo "Deployment updated successfully!"
+      - printf '[{"name":"flask-app","imageUri":"%s"}]' $ECR_REPO_URI:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
+    - k8s/**/*

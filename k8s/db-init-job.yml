@@ -1,0 +1,20 @@
+# ============================================================
+# db-init-job.yml - One-time DB initialization Job
+# ============================================================
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-init
+  namespace: capstone
+spec:
+  template:
+    spec:
+      containers:
+        - name: db-init
+          image: REPLACE_WITH_ECR_URI:latest
+          command: ["python", "create_db.py"]
+          envFrom:
+            - configMapRef:
+                name: app-config
+      restartPolicy: OnFailure
+  backoffLimit: 5

@@ -1,0 +1,73 @@
+# ============================================================
+# mysql-deployment.yml - MySQL Database
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: capstone
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "rootpass"
+            - name: MYSQL_DATABASE
+              value: "capstonedb"
+            - name: MYSQL_USER
+              value: "appuser"
+            - name: MYSQL_PASSWORD
+              value: "apppass"
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -prootpass
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+      restartPolicy: Always
+
+---
+# ============================================================
+# mysql-service.yml - MySQL Service
+# ============================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: capstone
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
