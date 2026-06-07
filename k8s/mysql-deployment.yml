@@ -1,5 +1,5 @@
 # ============================================================
-# mysql-deployment.yml - MySQL Database
+# mysql-deployment.yml - MySQL with hostPath storage
 # ============================================================
 apiVersion: apps/v1
 kind: Deployment
@@ -50,8 +50,9 @@ spec:
             timeoutSeconds: 5
       volumes:
         - name: mysql-storage
-          persistentVolumeClaim:
-            claimName: mysql-pvc
+          hostPath:
+            path: /data/mysql
+            type: DirectoryOrCreate
       restartPolicy: Always
 
 ---

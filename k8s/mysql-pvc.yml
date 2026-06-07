@@ -1,15 +1,24 @@
 # ============================================================
-# mysql-pvc.yml - Persistent Storage for MySQL
+# mysql-pvc.yml - Not needed when using hostPath
+# Kept as placeholder for reference
 # ============================================================
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pvc
-  namespace: capstone
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  storageClassName: standard
+# NOTE: We are using hostPath volume directly in mysql-deployment.yml
+# instead of PVC to avoid storage provisioner dependency.
+# This file is intentionally left minimal.
+#
+# If you want to use PVC in future, install a storage provisioner:
+# kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+# Then uncomment the PVC below and update mysql-deployment.yml
+#
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: mysql-pvc
+#   namespace: capstone
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 5Gi
+#   storageClassName: local-path
