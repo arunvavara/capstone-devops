@@ -18,9 +18,11 @@ spec:
       labels:
         app: flask-app
     spec:
+      imagePullSecrets:
+        - name: ecr-secret
       containers:
         - name: flask-app
-          image: REPLACE_WITH_ECR_URI:latest
+          image: 464813693523.dkr.ecr.us-west-2.amazonaws.com/capstone-flask-app:latest
           ports:
             - containerPort: 5000
           envFrom:
