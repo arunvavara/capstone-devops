@@ -41,7 +41,7 @@ phases:
       - docker push $ECR_REPO_URI:$IMAGE_TAG
       - echo "Image pushed successfully!"
       - echo "Updating Kubernetes deployment..."
-      - echo $KUBECONFIG_DATA | base64 -d > /tmp/kubeconfig
+      - echo "$KUBECONFIG_DATA" | base64 -d > /tmp/kubeconfig
       - export KUBECONFIG=/tmp/kubeconfig
       - kubectl set image deployment/flask-app flask-app=$ECR_REPO_URI:$IMAGE_TAG -n capstone
       - kubectl rollout status deployment/flask-app -n capstone
