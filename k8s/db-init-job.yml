@@ -1,6 +1,3 @@
-# ============================================================
-# db-init-job.yml - One-time DB initialization Job
-# ============================================================
 apiVersion: batch/v1
 kind: Job
 metadata:
