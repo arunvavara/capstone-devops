@@ -36,7 +36,7 @@ def is_ready():
 def hello_world():
     if not is_ready():
         return 'Not ready', 404
-    return 'Hello, World! Version 2 - CI/CD Pipeline Working!'
+    return 'Hello, World! Version 2 - CI/CD Pipeline Working!!!'
 
 
 @app.route('/status')
