@@ -9,9 +9,11 @@ metadata:
 spec:
   template:
     spec:
+      imagePullSecrets:
+        - name: ecr-secret
       containers:
         - name: db-init
-          image: REPLACE_WITH_ECR_URI:latest
+          image: 464813693523.dkr.ecr.us-west-2.amazonaws.com/capstone-flask-app:latest
           command: ["python", "create_db.py"]
           envFrom:
             - configMapRef:
